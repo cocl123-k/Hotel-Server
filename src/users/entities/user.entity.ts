@@ -1,7 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn } from 'typeorm';
 import { Booking } from '../../bookings/entities/booking.entity';
 
-// Định nghĩa Enum cho Role để tránh nhập sai
 export enum UserRole {
   ADMIN = 'admin',
   CUSTOMER = 'customer',
@@ -12,11 +11,16 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true }) // Email không được trùng nhau
+  // 1. Email cho phép null (nếu đăng ký bằng SĐT)
+  @Column({ unique: true, nullable: true }) 
   email: string;
 
+  // 2. Thêm số điện thoại, cho phép null, không được trùng
+  @Column({ unique: true, nullable: true })
+  phoneNumber: string;
+
   @Column()
-  password: string; // Lưu ý: Sau này sẽ mã hóa password trước khi lưu
+  password: string;
 
   @Column()
   fullName: string;
@@ -24,14 +28,13 @@ export class User {
   @Column({
     type: 'enum',
     enum: UserRole,
-    default: UserRole.CUSTOMER, // Mặc định tạo ra là khách hàng
+    default: UserRole.CUSTOMER,
   })
   role: UserRole;
 
-  @CreateDateColumn() // Tự động lưu thời gian tạo tài khoản
+  @CreateDateColumn()
   createdAt: Date;
 
-  // Quan hệ: Một User có thể có nhiều đơn đặt phòng (One-to-Many)
   @OneToMany(() => Booking, (booking) => booking.user)
   bookings: Booking[];
 }
