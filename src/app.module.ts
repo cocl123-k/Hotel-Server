@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RoomsModule } from './rooms/rooms.module'; // Sẽ tạo ở bước 3
 import { RoomsModule } from './rooms/rooms.module';
 import { UsersModule } from './users/users.module';
 import { BookingsModule } from './bookings/bookings.module';
@@ -8,17 +7,17 @@ import { BookingsModule } from './bookings/bookings.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'postgres', // hoặc 'mysql'
+      type: 'mysql',            // <--- Đổi từ 'postgres' thành 'mysql'
       host: 'localhost',
-      port: 5432,
-      username: 'postgres', // Thay bằng user DB của bạn
-      password: 'yourpassword', // Thay bằng pass DB của bạn
-      database: 'hotel_db',
+      port: 3306,               // <--- Đổi port mặc định MySQL là 3306
+      username: 'root',         // <--- User mặc định của MySQL thường là 'root'
+      password: '',             // <--- Mật khẩu (XAMPP thường để trống, nếu bạn cài riêng thì điền vào)
+      database: 'hotel_db',     // Tên database
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // Tự động tạo bảng (chỉ dùng khi dev)
+      synchronize: true, 
     }),
-    RoomsModule,
     UsersModule,
+    RoomsModule,
     BookingsModule,
   ],
 })

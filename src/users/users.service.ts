@@ -1,8 +1,10 @@
-import { Injectable, BadRequestException } from '@nestjs/common'; // Thêm BadRequestException
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common'; // Thêm BadRequestException
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -17,10 +19,34 @@ export class UsersService {
       throw new BadRequestException('Phải cung cấp Email hoặc Số điện thoại!');
     }
 
-    // 2. Tạo user mới
+    const saltOrRounds = 10;
+
+    const hashedPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
+    createUserDto.password = hashedPassword;
+
     const newUser = this.usersRepository.create(createUserDto);
     return this.usersRepository.save(newUser);
   }
 
-  // ... các hàm khác giữ nguyên
+  findAll() {
+    return this.usersRepository.find();
+  }
+
+  async findOne(id: number) {
+    const user = await this.usersRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException(`Không tìm thấy User có id: ${id}`);
+    }
+    return user;
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    await this.usersRepository.update(id, updateUserDto);
+    return this.findOne(id); // Trả về thông tin sau khi update
+  }
+
+  async remove(id: number) {
+    await this.usersRepository.delete(id);
+    return { message: `Đã xóa user #${id} thành công` };
+  }
 }
