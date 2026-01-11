@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty, IsEmail, IsOptional, IsEnum, MinLength } from 'class-validator';
+import { UserRole } from '../entities/user.entity';
 
 export class CreateUserDto {
   // Email không bắt buộc nhập (IsOptional)
@@ -19,4 +20,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   fullName: string;
+
+  @IsOptional()
+  role?: UserRole;
 }

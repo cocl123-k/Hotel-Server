@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { promises } from 'dns';
 
 @Injectable()
 export class UsersService {
@@ -28,7 +29,7 @@ export class UsersService {
     return this.usersRepository.save(newUser);
   }
 
-  findAll() {
+  async findAll() {
     return this.usersRepository.find();
   }
 
@@ -48,5 +49,43 @@ export class UsersService {
   async remove(id: number) {
     await this.usersRepository.delete(id);
     return { message: `Đã xóa user #${id} thành công` };
+  }
+
+  async findByEmailorPhone(username: string) : Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: [
+        {email: username},
+        {phoneNumber: username}
+      ]
+    })
+  }
+
+  async setResetToken(userID: number, token: string){
+    const tokenTime = new Date();
+    tokenTime.setMinutes(tokenTime.getMinutes() + 5);
+
+    await this.usersRepository.update(userID, {
+      resetToken: token,
+      resetTokenTime: tokenTime
+    });
+  }
+
+  async findByResetToken(token: string) : Promise<User | null> {
+    return this.usersRepository.findOne({
+      where: {resetToken : token},
+    })
+  }
+
+  async clearResetToken(userID : number) {
+    await this.usersRepository.update(userID, {
+      resetToken: null,
+      resetTokenTime : null,
+    });
+  }
+
+  async updatePassword(userID: number, newPassword: string){
+    await this.usersRepository.update(userID, {
+      password : newPassword
+    });
   }
 }

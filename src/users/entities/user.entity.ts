@@ -32,6 +32,12 @@ export class User {
   })
   role: UserRole;
 
+  @Column({ type: 'varchar', nullable: true })
+  resetToken: string | null;
+
+  @Column({ type: 'datetime', nullable: true })
+  resetTokenTime: Date | null;
+
   @CreateDateColumn()
   createdAt: Date;
 
